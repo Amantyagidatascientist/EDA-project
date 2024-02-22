@@ -1,0 +1,440 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "collapsed_sections": [
+        "k6zggibXbxyl"
+      ],
+      "authorship_tag": "ABX9TyOL1fJ9lFu21itl8nl8Bri7",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/Amantyagidatascientist/EDA-project/blob/main/web_scraping_on_github\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## **Pick a website and describe your objective**\n",
+        "\n",
+        "Browse through different sites and pick on to scrape. Check the \"Project Ideas\" section for inspiration.\n",
+        "\n",
+        "Identify the information you'd like to scrape from the site. Decide the format of the output CSV file.\n",
+        "\n",
+        "Summarize your project idea and outline your strategy in a Juptyer notebook. Use the \"New\" button above."
+      ],
+      "metadata": {
+        "id": "WjVmFwMDbF7C"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "# Outline\n",
+        "- we scraping the https://github.com/topics\n",
+        "- we'll get a list of topics.For each topic, we'll get topic title,\n",
+        "topic page URL and topic Description\n",
+        "- for each topic we'll get the top 25 repositories in the topic from the topic page\n",
+        "- For each topic,we'll grab the repo name,username,stars and\n",
+        "repo URL\n",
+        "- For each topic we'll create a csv file in the following format:"
+      ],
+      "metadata": {
+        "id": "YG9Ra4wYkS-T"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "# **Use the requests library to download web pages**"
+      ],
+      "metadata": {
+        "id": "vVRf4DQ2bcLO"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import requests\n"
+      ],
+      "metadata": {
+        "id": "jrZyR1_Ya6lg"
+      },
+      "execution_count": 1,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "topic_url='https://github.com/topics'\n",
+        "request=requests.get(topic_url)\n",
+        "request.status_code"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "bS3vYDeia6np",
+        "outputId": "b2d6bf30-0dd0-4e16-a76f-9ac040e04bbb"
+      },
+      "execution_count": 2,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "200"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 2
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "webpagedata=request.text"
+      ],
+      "metadata": {
+        "id": "w6T6mZNSnl1q"
+      },
+      "execution_count": 3,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "with open('webpage.html' ,'w') as f:\n",
+        "  f.write(webpagedata)"
+      ],
+      "metadata": {
+        "id": "6F3pTShVpgdn"
+      },
+      "execution_count": 4,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "# **Use Beautiful Soup to parse and extract information**"
+      ],
+      "metadata": {
+        "id": "vicQN5GhbmGH"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "\n"
+      ],
+      "metadata": {
+        "id": "5vZXYCKvceD1"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from bs4 import BeautifulSoup"
+      ],
+      "metadata": {
+        "id": "Dp68hjEjbgNK"
+      },
+      "execution_count": 6,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "soup=BeautifulSoup(webpagedata,'html.parser')"
+      ],
+      "metadata": {
+        "id": "puiZJc48a6q_"
+      },
+      "execution_count": 12,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "p_topic=soup.find_all('p',class_=\"f3 lh-condensed mb-0 mt-1 Link--primary\")\n",
+        "list_topic=[]\n",
+        "for i in range(len(p_topic)):\n",
+        "  list_topic.append(p_topic[i].text)\n",
+        "print(list_topic)"
+      ],
+      "metadata": {
+        "id": "Jnl-m4MGbtWX",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "9ea1bd34-018d-4993-d9ec-ad9cc0b2f035"
+      },
+      "execution_count": 50,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "30\n",
+            "['3D', 'Ajax', 'Algorithm', 'Amp', 'Android', 'Angular', 'Ansible', 'API', 'Arduino', 'ASP.NET', 'Atom', 'Awesome Lists', 'Amazon Web Services', 'Azure', 'Babel', 'Bash', 'Bitcoin', 'Bootstrap', 'Bot', 'C', 'Chrome', 'Chrome extension', 'Command line interface', 'Clojure', 'Code quality', 'Code review', 'Compiler', 'Continuous integration', 'COVID-19', 'C++']\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "p_desc=soup.find_all('p',class_='f5 color-fg-muted mb-0 mt-1')\n",
+        "list_disc=[]\n",
+        "for i  in range(len(p_desc)):\n",
+        "  new_string=(p_desc[i].text).strip()\n",
+        "  list_disc.append(new_string)\n",
+        "print(list_disc)"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "MR81YcGuoumM",
+        "outputId": "b9b8879b-d1a8-4247-bbbf-9275322b5371"
+      },
+      "execution_count": 60,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "['3D refers to the use of three-dimensional graphics, modeling, and animation in various industries.', 'Ajax is a technique for creating interactive web applications.', 'Algorithms are self-contained sequences that carry out a variety of tasks.', 'Amp is a non-blocking concurrency library for PHP.', 'Android is an operating system built by Google designed for mobile devices.', 'Angular is an open source web application platform.', 'Ansible is a simple and powerful automation engine.', 'An API (Application Programming Interface) is a collection of protocols and subroutines for building software.', 'Arduino is an open source platform for building electronic devices.', 'ASP.NET is a web framework for building modern web apps and services.', 'Atom is a open source text editor built with web technologies.', 'An awesome list is a list of awesome things curated by the community.', 'Amazon Web Services provides on-demand cloud computing platforms on a subscription basis.', 'Azure is a cloud computing service created by Microsoft.', 'Babel is a compiler for writing next generation JavaScript, today.', 'Bash is a shell and command language interpreter for the GNU operating system.', 'Bitcoin is a cryptocurrency developed by Satoshi Nakamoto.', 'Bootstrap is an HTML, CSS, and JavaScript framework.', 'A bot is an application that runs automated tasks over the Internet.', 'C is a general purpose programming language that first appeared in 1972.', 'Chrome is a web browser from the tech company Google.', 'Chrome extensions enable users to customize the Chrome browsing experience.', 'A CLI, or command-line interface, is a console that helps users issue commands to a program.', 'Clojure is a dynamic, general-purpose programming language.', 'Automate your code review with style, quality, security, and test‑coverage checks when you need them.', 'Ensure your code meets quality standards and ship with confidence.', 'Compilers are software that translate higher-level programming languages to lower-level languages (e.g. machine code).', 'Automatically build and test your code as you push it upstream, preventing bugs from being deployed to production.', 'The coronavirus disease 2019 (COVID-19) is an infectious disease caused by SARS-CoV-2.', 'C++ is a general purpose and object-oriented programming language.']\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "link_p_topic=soup.find_all('a',class_='no-underline flex-1 d-flex flex-column')\n",
+        "list_link=[]\n",
+        "for i in range(len(link_p_topic)):\n",
+        "  new_link=\"https://github.com/\" + link_p_topic[i]['href']\n",
+        "  list_link.append(new_link)\n",
+        "print(list_link)"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "p4TeU1KczkOp",
+        "outputId": "3bf300f8-0468-4187-9093-57f80043c618"
+      },
+      "execution_count": 59,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "['https://github.com//topics/3d', 'https://github.com//topics/ajax', 'https://github.com//topics/algorithm', 'https://github.com//topics/amphp', 'https://github.com//topics/android', 'https://github.com//topics/angular', 'https://github.com//topics/ansible', 'https://github.com//topics/api', 'https://github.com//topics/arduino', 'https://github.com//topics/aspnet', 'https://github.com//topics/atom', 'https://github.com//topics/awesome', 'https://github.com//topics/aws', 'https://github.com//topics/azure', 'https://github.com//topics/babel', 'https://github.com//topics/bash', 'https://github.com//topics/bitcoin', 'https://github.com//topics/bootstrap', 'https://github.com//topics/bot', 'https://github.com//topics/c', 'https://github.com//topics/chrome', 'https://github.com//topics/chrome-extension', 'https://github.com//topics/cli', 'https://github.com//topics/clojure', 'https://github.com//topics/code-quality', 'https://github.com//topics/code-review', 'https://github.com//topics/compiler', 'https://github.com//topics/continuous-integration', 'https://github.com//topics/covid-19', 'https://github.com//topics/cpp']\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import pandas as pd\n",
+        "gethub_topic=pd.DataFrame({'Topic':list_topic,'Description':list_disc,'link':list_link})\n",
+        "gethub_topic"
+      ],
+      "metadata": {
+        "id": "TfIpKSfB6xYT"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "# **Create CSV file(s) with the extracted information**"
+      ],
+      "metadata": {
+        "id": "k6zggibXbxyl"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "gethub_topic.to_csv(\"gethubdata.csv\")"
+      ],
+      "metadata": {
+        "id": "oqREH52zbtZ-"
+      },
+      "execution_count": 64,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "# **Getting information out of a topic page**"
+      ],
+      "metadata": {
+        "id": "1SXXjoOu7_zX"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "topic_page_link=list_link[0]\n",
+        "topic_page_link"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 35
+        },
+        "id": "oS3njkYg8PRr",
+        "outputId": "81f668ea-c082-49de-fe0c-360c4b1d1cf1"
+      },
+      "execution_count": 65,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "'https://github.com//topics/3d'"
+            ],
+            "application/vnd.google.colaboratory.intrinsic+json": {
+              "type": "string"
+            }
+          },
+          "metadata": {},
+          "execution_count": 65
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [],
+      "metadata": {
+        "id": "-fNKzOz98PeP"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [],
+      "metadata": {
+        "id": "H4ohG3Bk8Pgj"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [],
+      "metadata": {
+        "id": "zc7W4OVr8Pip"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [],
+      "metadata": {
+        "id": "UVdCQVaF8PmD"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [],
+      "metadata": {
+        "id": "Qg13ebIx7--o"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [],
+      "metadata": {
+        "id": "jUn1LeG17_B8"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "# **Document and share your work**"
+      ],
+      "metadata": {
+        "id": "Q55jkloacFiT"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [],
+      "metadata": {
+        "id": "YEgO4KA7bo-7"
+      },
+      "execution_count": 4,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [],
+      "metadata": {
+        "id": "s-DmdA4UbpCg"
+      },
+      "execution_count": 4,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [],
+      "metadata": {
+        "id": "abwM6HcRcDkK"
+      },
+      "execution_count": 4,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [],
+      "metadata": {
+        "id": "eGhAOcY1cDlq"
+      },
+      "execution_count": 4,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [],
+      "metadata": {
+        "id": "OxcWFEQAcDpN"
+      },
+      "execution_count": 4,
+      "outputs": []
+    }
+  ]
+}
